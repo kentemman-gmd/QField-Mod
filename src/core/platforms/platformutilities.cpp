@@ -179,7 +179,7 @@ void PlatformUtilities::executeQfAction() const
 
 QStringList PlatformUtilities::appDataDirs() const
 {
-  return QStringList() << QFieldStorageManager::instance().projectsPath() + QLatin1Char( "/" );
+  return QStringList() << QFieldStorageManager::instance().projectsPath() + QLatin1Char( '''/''' );
 }
 
 QStringList PlatformUtilities::availableGrids() const
