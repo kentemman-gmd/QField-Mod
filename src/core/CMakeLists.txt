@@ -25,6 +25,7 @@ set(QFIELD_CORE_SRCS
     utils/snappingutils.cpp
     utils/stringutils.cpp
     utils/urlutils.cpp
+    storage/qfieldstoragemanager.cpp
     qgsquick/qgsquickcoordinatetransformer.cpp
     qgsquick/qgsquickmapcanvasmap.cpp
     qgsquick/qgsquickelevationprofilecanvas.cpp
@@ -177,6 +178,7 @@ set(QFIELD_CORE_HDRS
     utils/snappingutils.h
     utils/stringutils.h
     utils/urlutils.h
+    storage/qfieldstoragemanager.h
     qgsquick/qgsquickcoordinatetransformer.h
     qgsquick/qgsquickmapcanvasmap.h
     qgsquick/qgsquickelevationprofilecanvas.h
