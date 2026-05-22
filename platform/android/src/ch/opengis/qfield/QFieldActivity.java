@@ -155,25 +155,31 @@ public class QFieldActivity extends QtActivity {
     public String getQFieldDocumentsDirectory() {
         Uri treeUri = getPersistedQFieldTreeUri();
         if (treeUri == null) {
-            File fallback = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+            File fallback = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOCUMENTS);
             return new File(fallback, "QField").getAbsolutePath();
         }
         String path = QFieldUtils.getPath(this, treeUri);
         if (path == null || path.isEmpty()) {
-            File fallback = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+            File fallback = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOCUMENTS);
             return new File(fallback, "QField").getAbsolutePath();
         }
         return path;
     }
 
     private Uri getPersistedQFieldTreeUri() {
-        String persisted = sharedPreferences.getString(PREF_STORAGE_TREE_URI, "");
+        String persisted =
+            sharedPreferences.getString(PREF_STORAGE_TREE_URI, "");
         if (persisted.isEmpty()) {
             return null;
         }
         Uri uri = Uri.parse(persisted);
-        for (UriPermission permission : getContentResolver().getPersistedUriPermissions()) {
-            if (permission.getUri().equals(uri) && permission.isReadPermission() && permission.isWritePermission()) {
+        for (UriPermission permission :
+             getContentResolver().getPersistedUriPermissions()) {
+            if (permission.getUri().equals(uri) &&
+                permission.isReadPermission() &&
+                permission.isWritePermission()) {
                 return uri;
             }
         }
@@ -1697,8 +1703,11 @@ public class QFieldActivity extends QtActivity {
             Uri uri = data.getData();
             if (uri != null) {
                 getContentResolver().takePersistableUriPermission(
-                    uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                sharedPreferenceEditor.putString(PREF_STORAGE_TREE_URI, uri.toString()).apply();
+                    uri, Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                             Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                sharedPreferenceEditor
+                    .putString(PREF_STORAGE_TREE_URI, uri.toString())
+                    .apply();
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);

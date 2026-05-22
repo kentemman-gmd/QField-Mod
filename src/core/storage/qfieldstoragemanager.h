@@ -11,6 +11,7 @@ class QFieldStorageManager
     QString cachePath() const;
     bool ensureDirectories() const;
     bool migrateLegacyProjects() const;
+
   private:
     QFieldStorageManager() = default;
     QString basePath() const;

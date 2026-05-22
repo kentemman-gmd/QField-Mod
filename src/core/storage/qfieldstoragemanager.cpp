@@ -1,5 +1,6 @@
-#include "qfieldstoragemanager.h"
 #include "fileutils.h"
+#include "qfieldstoragemanager.h"
+
 #include <QDir>
 #include <QFileInfo>
 #include <QSettings>
@@ -61,7 +62,7 @@ bool QFieldStorageManager::migrateLegacyProjects() const
     return true;
   }
   bool migrated = true;
-  const QStringList folders{ QStringLiteral( "Imported Projects" ), QStringLiteral( "Imported Datasets" ), QStringLiteral( "DCIM" ), QStringLiteral( "Backups" ) };
+  const QStringList folders { QStringLiteral( "Imported Projects" ), QStringLiteral( "Imported Datasets" ), QStringLiteral( "DCIM" ), QStringLiteral( "Backups" ) };
   for ( const QString &folder : folders )
   {
     const QString sourceFolder = source + QLatin1Char( '/' ) + folder;
