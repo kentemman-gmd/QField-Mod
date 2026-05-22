@@ -1,0 +1,13 @@
+name: Android Build Entrypoint
+
+on:
+  pull_request:
+    branches:
+      - master
+      - release-**
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/android.yml
+    secrets: inherit

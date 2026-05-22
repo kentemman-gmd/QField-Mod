@@ -45,6 +45,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.UriPermission;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -111,6 +112,7 @@ public class QFieldActivity extends QtActivity {
     private static final int UPDATE_PROJECT_FROM_ARCHIVE = 400;
 
     private static final int EXPORT_TO_FOLDER = 500;
+    private static final int PICK_QFIELD_STORAGE_ROOT = 501;
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor sharedPreferenceEditor;
@@ -148,10 +150,61 @@ public class QFieldActivity extends QtActivity {
     private File resourceCacheFile;
     private boolean resourceIsEditing;
 
+    private static final String PREF_STORAGE_TREE_URI = "pref_storage_tree_uri";
+
+    public String getQFieldDocumentsDirectory() {
+        Uri treeUri = getPersistedQFieldTreeUri();
+        if (treeUri == null) {
+            File fallback = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOCUMENTS);
+            return new File(fallback, "QField").getAbsolutePath();
+        }
+        String path = QFieldUtils.getPath(this, treeUri);
+        if (path == null || path.isEmpty()) {
+            File fallback = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOCUMENTS);
+            return new File(fallback, "QField").getAbsolutePath();
+        }
+        return path;
+    }
+
+    private Uri getPersistedQFieldTreeUri() {
+        String persisted =
+            sharedPreferences.getString(PREF_STORAGE_TREE_URI, "");
+        if (persisted.isEmpty()) {
+            return null;
+        }
+        Uri uri = Uri.parse(persisted);
+        for (UriPermission permission :
+             getContentResolver().getPersistedUriPermissions()) {
+            if (permission.getUri().equals(uri) &&
+                permission.isReadPermission() &&
+                permission.isWritePermission()) {
+                return uri;
+            }
+        }
+        sharedPreferenceEditor.remove(PREF_STORAGE_TREE_URI).apply();
+        return null;
+    }
+
+    private void triggerQFieldStoragePicker() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION |
+                        Intent.FLAG_GRANT_PREFIX_URI_PERMISSION |
+                        Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        startActivityForResult(intent, PICK_QFIELD_STORAGE_ROOT);
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         prepareQtActivity();
         super.onCreate(savedInstanceState);
+        sharedPreferences = getSharedPreferences("QField", MODE_PRIVATE);
+        sharedPreferenceEditor = sharedPreferences.edit();
+
+        if (getPersistedQFieldTreeUri() == null) {
+            triggerQFieldStoragePicker();
+        }
 
         View decorView = getWindow().getDecorView();
         decorView.getViewTreeObserver().addOnGlobalLayoutListener(
@@ -1645,6 +1698,17 @@ public class QFieldActivity extends QtActivity {
                     }
                 }
             });
+        } else if (requestCode == PICK_QFIELD_STORAGE_ROOT &&
+                   resultCode == Activity.RESULT_OK && data != null) {
+            Uri uri = data.getData();
+            if (uri != null) {
+                getContentResolver().takePersistableUriPermission(
+                    uri, Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                             Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                sharedPreferenceEditor
+                    .putString(PREF_STORAGE_TREE_URI, uri.toString())
+                    .apply();
+            }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }

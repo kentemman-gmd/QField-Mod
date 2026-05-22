@@ -19,6 +19,7 @@
 #include "appinterface.h"
 #include "fileutils.h"
 #include "platformutilities.h"
+#include "storage/qfieldstoragemanager.h"
 #include "projectsource.h"
 #include "qfield.h"
 #include "qfieldcloudconnection.h"
@@ -99,6 +100,8 @@ void PlatformUtilities::initSystem()
 
 void PlatformUtilities::afterUpdate()
 {
+  QFieldStorageManager::instance().ensureDirectories();
+  QFieldStorageManager::instance().migrateLegacyProjects();
   const QStringList dirs = appDataDirs();
   for ( const QString &dir : dirs )
   {
@@ -115,6 +118,9 @@ void PlatformUtilities::afterUpdate()
   applicationDir.mkpath( QStringLiteral( "Created Projects" ) );
   applicationDir.mkpath( QStringLiteral( "Imported Projects" ) );
   applicationDir.mkpath( QStringLiteral( "Imported Datasets" ) );
+  applicationDir.mkpath( QStringLiteral( "Backups" ) );
+  applicationDir.mkpath( QStringLiteral( "Attachments" ) );
+  applicationDir.mkpath( QStringLiteral( "Exports" ) );
 }
 
 QString PlatformUtilities::systemSharedDataLocation() const
@@ -173,7 +179,7 @@ void PlatformUtilities::executeQfAction() const
 
 QStringList PlatformUtilities::appDataDirs() const
 {
-  return QStringList() << QStandardPaths::standardLocations( QStandardPaths::DocumentsLocation ).first() + QStringLiteral( "/QField Documents/QField/" );
+  return QStringList() << QFieldStorageManager::instance().projectsPath() + QLatin1Char( '''/''' );
 }
 
 QStringList PlatformUtilities::availableGrids() const
@@ -245,7 +251,7 @@ bool PlatformUtilities::renameFile( const QString &oldFilePath, const QString &n
 
 QString PlatformUtilities::applicationDirectory() const
 {
-  return QStandardPaths::standardLocations( QStandardPaths::DocumentsLocation ).first() + QStringLiteral( "/QField Documents/" );
+  return QFieldStorageManager::instance().projectsPath() + QStringLiteral( "/" );
 }
 
 QStringList PlatformUtilities::additionalApplicationDirectories() const
